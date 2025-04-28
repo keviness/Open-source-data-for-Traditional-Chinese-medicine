@@ -32,4 +32,4 @@
 
 ## 联系方式
 
-如有任何问题或建议，请联系项目维护者：[gst-0123@example.com](mailto:gst-0123@example.com)
+如有任何问题或建议，请fork
