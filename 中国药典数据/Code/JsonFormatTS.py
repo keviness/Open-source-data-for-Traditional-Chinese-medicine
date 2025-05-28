@@ -20,10 +20,27 @@ def jsonl_to_excel(jsonl_path, excel_path):
     normalized_data = []
     for row in data:
         normalized_row = {col: row.get(col, None) for col in columns}
+        # 拼接"成份"和"组成"字段，生成"药物组成"
+        comp = normalized_row.get("成份") or ""
+        comp2 = normalized_row.get("组成") or ""
+        if comp and comp2:
+            drug_comp = f"{comp},{comp2}"
+        else:
+            drug_comp = comp or comp2
+        normalized_row["药物组成"] = drug_comp
         normalized_data.append(normalized_row)
     # 写入Excel前去重
-    df = pd.DataFrame(normalized_data, columns=columns)
+    df = pd.DataFrame(normalized_data, columns=columns + ["药物组成"])
     df = df.drop_duplicates()
+    # 只保留class字段为中成药的数据
+    df = df[df["class"] == "中成药"]
+    # 去除"成份", "组成"字段都空的数据
+    df = df[~(df["成份"].isnull() & df["组成"].isnull())]
+    # 去除"功能主治"、"适应证"字段都空的数据
+    df = df[~(df["功能主治"].isnull() & df["适应证"].isnull())]
+    # 去掉"成份", "组成"字段，只保留指定顺序字段
+    columns_order = ["中心词", "class", "药物组成", "出处", "功能主治", "适应证", "分类", "药品类型"]
+    df = df[columns_order]
     df.to_excel(excel_path, index=False)
 
 # 示例用法
