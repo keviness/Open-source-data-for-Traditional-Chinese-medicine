@@ -38,6 +38,14 @@ def jsonl_to_excel(jsonl_path, excel_path):
     df = df[~(df["成份"].isnull() & df["组成"].isnull())]
     # 去除"功能主治"、"适应证"字段都空的数据
     df = df[~(df["功能主治"].isnull() & df["适应证"].isnull())]
+    # 保留功能主治或者适应证字段含有“失眠”或者“焦虑”内容的数据
+    '''
+    mask = (
+        df["功能主治"].fillna("").str.contains("失眠|焦虑", case=False, na=False) |
+        df["适应证"].fillna("").str.contains("失眠|焦虑", case=False, na=False)
+    )
+    df = df[mask]
+    '''
     # 去掉"成份", "组成"字段，只保留指定顺序字段
     columns_order = ["中心词", "class", "药物组成", "出处", "功能主治", "适应证", "分类", "药品类型"]
     df = df[columns_order]
